@@ -1,0 +1,20 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" fill="#09090B"/>
+  <rect x="64" y="56" width="1152" height="608" rx="24" fill="#18181B" stroke="#3F3F46"/>
+  <rect x="104" y="108" width="1072" height="68" rx="12" fill="#27272A"/>
+  <rect x="124" y="128" width="260" height="28" rx="6" fill="#FAFAFA" fill-opacity="0.85"/>
+  <rect x="930" y="124" width="106" height="36" rx="8" fill="#3F3F46"/>
+  <rect x="1048" y="124" width="106" height="36" rx="8" fill="#22C55E"/>
+  <rect x="104" y="208" width="534" height="404" rx="16" fill="#111827" stroke="#1F2937"/>
+  <rect x="676" y="208" width="500" height="194" rx="16" fill="#0F172A" stroke="#1E293B"/>
+  <rect x="676" y="418" width="500" height="194" rx="16" fill="#111827" stroke="#1F2937"/>
+  <rect x="136" y="250" width="320" height="30" rx="6" fill="#E4E4E7"/>
+  <rect x="136" y="292" width="456" height="18" rx="6" fill="#71717A"/>
+  <rect x="136" y="322" width="430" height="18" rx="6" fill="#52525B"/>
+  <rect x="136" y="374" width="230" height="42" rx="10" fill="#22C55E"/>
+  <rect x="700" y="248" width="200" height="24" rx="6" fill="#F8FAFC"/>
+  <rect x="700" y="284" width="300" height="14" rx="6" fill="#94A3B8"/>
+  <rect x="700" y="456" width="220" height="24" rx="6" fill="#F8FAFC"/>
+  <rect x="700" y="492" width="260" height="14" rx="6" fill="#94A3B8"/>
+  <text x="104" y="44" fill="#A1A1AA" font-size="18" font-family="Segoe UI, Arial, sans-serif">Template Preview</text>
+</svg>
