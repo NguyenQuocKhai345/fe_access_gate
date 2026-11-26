@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
 
-const fallbackBaseUrl = "http://localhost:3000/api";
+const fallbackBaseUrl = "http://localhost:8080/api";
 const baseURL = import.meta.env.VITE_API_BASE_URL || fallbackBaseUrl;
 
 let accessTokenGetter: (() => string | null) | null = null;

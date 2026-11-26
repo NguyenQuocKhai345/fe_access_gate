@@ -6,6 +6,10 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    // Matches IDENTITY_WEB_REDIRECT_URI's local default.
+    port: 3000,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
