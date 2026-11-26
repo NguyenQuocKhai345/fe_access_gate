@@ -29,7 +29,7 @@ function unwrapData<T>(value: unknown): T | null {
 const modules: Module[] = [
   { id: "overview", title: "Tổng quan", eyebrow: "WORKSPACE", icon: Activity, description: "Không gian vận hành kiểm soát ra vào và chấm công TMC.", actions: [] },
   { id: "kiosk", roles: ["ADMIN"], title: "M\u00f4 ph\u1ecfng c\u1ed5ng", eyebrow: "GATE SIMULATOR", icon: DoorOpen, description: "Qu\u00e9t QR t\u1ea1i tr\u1ea1m v\u00e0 xem quy\u1ebft \u0111\u1ecbnh v\u00e0o c\u1ed5ng; k\u1ebft qu\u1ea3 m\u1edf c\u1ed5ng \u0111\u01b0\u1ee3c m\u00f4 ph\u1ecfng.", actions: [
-    { title: "Qu\u00e9t QR nh\u00e2n vi\u00ean", method: "POST", path: "/access/simulator/scans", hint: "Ch\u1ecdn tr\u1ea1m v\u00e0 d\u00f9ng \u0111\u1ea7u \u0111\u1ecdc QR \u0111\u1ec3 qu\u00e9t.", body: '{\n  "scanId": "",\n  "stationId": "",\n  "deviceId": "",\n  "qrToken": ""\n}' },
+    { title: "Qu\u00e9t QR nh\u00e2n vi\u00ean", method: "POST", path: "/access/simulator/scans", hint: "Ch\u1ecdn tr\u1ea1m c\u1ed5ng. QR ph\u1ea3i \u0111\u01b0\u1ee3c c\u1ea5p cho nh\u00e0 m\u00e1y thu\u1ed9c tr\u1ea1m \u0111\u00f3.", body: '{\n  "scanId": "",\n  "stationId": "",\n  "deviceId": "",\n  "qrToken": ""\n}' },
   ] },
   { id: "employees", roles: ["ADMIN"], title: "Nhân sự & phân quyền", eyebrow: "IDENTITY", icon: Users, description: "Quản lý tài khoản, vai trò và quyền truy cập nhà máy.", actions: [
     { title: "Danh sách nhân viên", method: "GET", path: "/identity/employees?limit=50&offset=0", hint: "Tối đa 100 nhân viên mỗi lần tải." },
@@ -42,7 +42,7 @@ const modules: Module[] = [
   { id: "sites", title: "Nhà máy & trạm", eyebrow: "GATE STATION", icon: Building2, description: "Cấu hình nhà máy, hướng di chuyển và thiết bị tại cổng.", actions: [
     { title: "Danh s\u00e1ch nh\u00e0 m\u00e1y", method: "GET", path: "/stations/factories", hint: "Danh s\u00e1ch c\u00e1c nh\u00e0 m\u00e1y trong h\u1ec7 th\u1ed1ng." },
     { title: "Danh s\u00e1ch tr\u1ea1m v\u00e0 c\u1ed5ng", method: "GET", path: "/stations/stations", hint: "Danh s\u00e1ch c\u00e1c tr\u1ea1m v\u00e0 c\u1ed5ng." },
-    { title: "Đăng ký thiết bị kiosk", roles: ["ADMIN"], method: "POST", path: "/identity/devices", hint: "Dùng đúng mã thiết bị đã khai báo tại trạm; bí mật này dùng cho xác thực kiosk.", body: '{\n  "clientId": "kiosk-01",\n  "secret": "",\n  "stationId": ""\n}' },
+    { title: "Đăng ký thiết bị kiosk", roles: ["ADMIN"], method: "POST", path: "/identity/devices", hint: "Mã kiosk phải trùng mã thiết bị của trạm đã chọn. Trạm thuộc một nhà máy cụ thể.", body: '{\n  "clientId": "kiosk-01",\n  "secret": "",\n  "stationId": ""\n}' },
     { title: "Tạo nhà máy", roles: ["ADMIN"], method: "POST", path: "/stations/factories", hint: "Tạo nhà máy ở trạng thái hoạt động.", body: '{\n  "code": "FACTORY-01",\n  "name": "Nhà máy 1"\n}' },
     { title: "Bật / khóa nhà máy", roles: ["ADMIN"], method: "PUT", path: "/stations/factories/{factoryId}/status", hint: "Nhập factoryId.", fields: ["factoryId"], body: '{\n  "active": true\n}' },
     { title: "Tạo trạm", roles: ["ADMIN"], method: "POST", path: "/stations/stations", hint: "Hướng trạm: ENTRY hoặc EXIT.", body: '{\n  "factoryId": "",\n  "code": "GATE-01",\n  "deviceId": "kiosk-01",\n  "direction": "ENTRY",\n  "controllerReference": "gate-01"\n}' },
@@ -173,7 +173,7 @@ function EndpointForm({ action, onDone, factories = [], stations = [], employees
     if (key === "stationId" && action.path === "/identity/devices") {
       return <select required value={String(value || "")} onChange={event => updateBody(key, event.target.value)}>
         <option value="">{stations.length ? "Ch\u1ecdn tr\u1ea1m \u0111\u00e3 t\u1ea1o" : "Ch\u01b0a c\u00f3 tr\u1ea1m"}</option>
-        {stations.map(station => <option key={station.stationId} value={station.stationId}>{station.code} \u00b7 {station.direction === "ENTRY" ? "C\u1ed5ng v\u00e0o" : "C\u1ed5ng ra"}</option>)}
+        {stations.map(station => <option key={station.stationId} value={station.stationId}>{station.code} · {factories.find(factory => factory.factoryId === station.factoryId)?.code || "Chưa rõ nhà máy"} · {station.direction === "ENTRY" ? "Cổng vào" : "Cổng ra"}</option>)}
       </select>;
     }
     if (key === "secret" && action.path === "/identity/devices") {
@@ -182,7 +182,7 @@ function EndpointForm({ action, onDone, factories = [], stations = [], employees
     if (key === "stationId" && action.path === "/access/simulator/scans") {
       return <select required value={String(value || "")} onChange={event => void selectSimulatorStation(event.target.value)}>
         <option value="">{stations.length ? "Chọn trạm quét" : "Chưa có trạm khả dụng"}</option>
-        {stations.map(station => <option key={station.stationId} value={station.stationId}>{station.code} · {station.direction === "ENTRY" ? "Cổng vào" : "Cổng ra"}</option>)}
+        {stations.map(station => <option key={station.stationId} value={station.stationId}>{station.code} · {factories.find(factory => factory.factoryId === station.factoryId)?.code || "Chưa rõ nhà máy"} · {station.direction === "ENTRY" ? "Cổng vào" : "Cổng ra"}</option>)}
       </select>;
     }
     if (key === "qrToken" && action.path === "/access/simulator/scans") {
@@ -271,9 +271,14 @@ function EndpointForm({ action, onDone, factories = [], stations = [], employees
       onDone(response.data, response.status);
     } catch (cause) {
       const status = axios.isAxiosError(cause) ? cause.response?.status : undefined;
+      const serverCode = axios.isAxiosError(cause) ? String(cause.response?.data?.code || "") : "";
       const serverMessage = axios.isAxiosError(cause) ? cause.response?.data?.message || cause.response?.data?.code : "";
       const friendlyMessage = status === 401 ? "Phi\u00ean \u0111\u0103ng nh\u1eadp \u0111\u00e3 h\u1ebft h\u1ea1n. Vui l\u00f2ng \u0111\u0103ng nh\u1eadp l\u1ea1i."
-        : status === 403 ? (action.method === "GET" ? "Phi\u00ean \u0111\u0103ng nh\u1eadp ch\u01b0a c\u00f3 quy\u1ec1n xem d\u1eef li\u1ec7u n\u00e0y. H\u00e3y \u0111\u0103ng xu\u1ea5t v\u00e0 \u0111\u0103ng nh\u1eadp l\u1ea1i." : "Ch\u1ec9 t\u00e0i kho\u1ea3n qu\u1ea3n tr\u1ecb m\u1edbi \u0111\u01b0\u1ee3c ph\u00e9p thay \u0111\u1ed5i nh\u00e0 m\u00e1y v\u00e0 tr\u1ea1m.")
+        : status === 403 && action.path === "/qr/me/qr" ? (serverCode === "SITE_ACCESS_DENIED"
+          ? "T\u00e0i kho\u1ea3n nh\u00e2n vi\u00ean ch\u01b0a \u0111\u01b0\u1ee3c c\u1ea5p quy\u1ec1n v\u00e0o nh\u00e0 m\u00e1y n\u00e0y. Nh\u1edd ADMIN c\u1ea5p quy\u1ec1n nh\u00e0 m\u00e1y r\u1ed3i \u0111\u0103ng nh\u1eadp l\u1ea1i."
+          : serverCode === "FORBIDDEN" ? "Phi\u00ean \u0111\u0103ng nh\u1eadp kh\u00f4ng c\u00f3 quy\u1ec1n qr.issue. H\u00e3y \u0111\u0103ng xu\u1ea5t, \u0111\u0103ng nh\u1eadp l\u1ea1i v\u00e0 th\u1eed l\u1ea1i."
+          : `Kh\u00f4ng th\u1ec3 c\u1ea5p QR (HTTP 403${serverCode ? `, ${serverCode}` : ""}).`)
+        : status === 403 ? (action.method === "GET" ? "Phi\u00ean \u0111\u0103ng nh\u1eadp ch\u01b0a c\u00f3 quy\u1ec1n xem d\u1eef li\u1ec7u n\u00e0y. H\u00e3y \u0111\u0103ng xu\u1ea5t v\u00e0 \u0111\u0103ng nh\u1eadp l\u1ea1i." : "T\u00e0i kho\u1ea3n hi\u1ec7n t\u1ea1i kh\u00f4ng c\u00f3 quy\u1ec1n th\u1ef1c hi\u1ec7n thao t\u00e1c n\u00e0y.")
         : status === 404 ? "Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng tin c\u1ea7n x\u1eed l\u00fd. H\u00e3y ki\u1ec3m tra l\u1ea1i m\u00e3 \u0111\u00e3 nh\u1eadp."
         : status === 400 ? "Th\u00f4ng tin ch\u01b0a h\u1ee3p l\u1ec7. Vui l\u00f2ng ki\u1ec3m tra c\u00e1c tr\u01b0\u1eddng \u0111\u00e3 nh\u1eadp."
         : status === 409 ? "Th\u00f4ng tin \u0111\u00e3 \u0111\u01b0\u1ee3c x\u1eed l\u00fd ho\u1eb7c kh\u00f4ng c\u00f2n m\u1edbi nh\u1ea5t. H\u00e3y t\u1ea3i l\u1ea1i r\u1ed3i th\u1eed l\u1ea1i."
